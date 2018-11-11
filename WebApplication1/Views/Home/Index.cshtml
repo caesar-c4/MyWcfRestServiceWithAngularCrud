@@ -1,0 +1,110 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+<div ng-controller="myctrl">
+        <table >
+            <tr>
+                <th colspan="2"><h1>Employee Information</h1></th>
+            </tr>
+            <tr>
+                <th>Name</th>
+                <td><input type="text" ng-model="addNew.Name" class="btn btn-default" /></td>
+            </tr>
+            <tr>
+                <th>Email</th>
+                <td><input type="text" ng-model="addNew.Email" class="btn btn-default" /></td>
+            </tr>
+            <tr>
+                <th>Contact</th>
+                <td><input type="text" ng-model="addNew.Contact" class="btn btn-default" /></td>
+            </tr>
+            <tr>
+                <th>Address</th>
+                <td><input type="text" ng-model="addNew.Address" class="btn btn-default" /></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>
+                    <br />
+                    <input type="button" value="Save" ng-click="save()" class="btn btn-success" />
+                    <input type="button" value="Update" ng-click="Update()" class="btn btn-success" />
+                    <br /><br />
+                </td>
+            </tr>
+        </table>
+        <table class="table" >
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Contact</th>
+                <th>Address</th>
+                <th></th>
+            </tr>
+            <tr ng-repeat="user in users">
+                <td>{{user.Name}}</td>
+                <td>{{user.Email}}</td>
+                <td>{{user.Contact}}</td>
+                <td>{{user.Address}}</td>
+                <td>
+                    <button class="btn-link" ng-click="Edit(user.Id)"><span class="glyphicon glyphicon-pencil "></span></button>
+                    <button class="btn-link" ng-click="Delete(user.Id)"><span class="glyphicon glyphicon-trash"></span></button>
+                </td>
+            </tr>
+        </table>
+    </div>
+@section scripts{
+    <script src="~/Scripts/angular.min.js"></script>
+    <script>
+        var app = angular.module("myapp", [])
+                        .controller("myctrl", function ($scope, $http) {
+                            $scope.addNew = null;
+                            function clear() {
+                                $scope.addNew = null;
+                            }
+                            function load() {
+                                $http.get("http://localhost:4408/Service1.svc/").then(function (data) {
+                                    $scope.users = data.data;
+                                    console.log(data.data);
+                                }, function (err) {
+                                    console.log(err);
+                                });
+                            }
+                            load();
+                            $scope.save = function () {
+                                $http.post("http://localhost:4408/Service1.svc/", $scope.addNew).then(function (data) {
+                                    load();
+                                    clear();
+                                    console.log(data.data);
+                                }, function (err) {
+                                    console.log(err);
+                                });
+                            }
+                            $scope.Edit = function (id) {
+                                $http.get("http://localhost:4408/Service1.svc/" + id).then(function (data) {
+                                    $scope.addNew = data.data;
+                                    console.log(data.data);
+                                }, function (err) {
+                                    console.log(err);
+                                });
+                            };
+                            $scope.Update = function () {
+                                $http.put("http://localhost:4408/Service1.svc/", $scope.addNew)
+                                        .then(function () {
+                                            load();
+                                            clear();
+                                        }, function (err) {
+                                            console.log(err);
+                                        })
+                            };
+                            $scope.Delete = function (id) {
+                                $http.delete("http://localhost:4408/Service1.svc/" + id)
+                                        .then(function () {
+                                            load();
+                                            clear();
+                                        }, function (err) {console.log(err) })
+                            }
+
+                        });
+    </script>
+
+}
